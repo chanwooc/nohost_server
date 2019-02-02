@@ -1,0 +1,71 @@
+CC=g++
+
+CFLAGS	+=\
+			-g\
+			-std=c++11\
+			-DCPP\
+			-Wwrite-strings\
+			-DNOHOST\
+			-DUSER_MODE\
+			-DHASH_BLOOM=20\
+			-DCONFIG_ENABLE_MSG\
+			-DCONFIG_ENABLE_DEBUF\
+			-DUSE_PMU\
+			-DUSE_NEW_RMW\
+			-DNODATA\
+			-DREDIS\
+			-DLSMTREE\
+			-DENABLE_LIBFTL\
+			-DSEQ\
+#			-DTIME\
+
+INCLUDES :=	-I$(PWD)\
+		-I$(PWD)/../memio_test/bdbm_drv/frontend/libmemio\
+		-I$(PWD)/../bdbm_drv/frontend/nvme\
+		-I$(PWD)/../bdbm_drv/ftl\
+		-I$(PWD)/../bdbm_drv/include\
+		-I$(PWD)/../bdbm_drv/common/utils\
+		-I$(PWD)/../bdbm_drv/common/3rd\
+		-I$(PWD)/../bdbm_drv/devices/3rd\
+		-I$(PWD)/include\
+		-I$(PWD)/../lsmtree_mixed_final_\
+	#	-I$(PWD)/../FlashSimulator/interface\
+	#	-I$(PWD)/../FlashSimulator/include\
+
+LIBS 	:=\
+			-L./\
+			-llsm\
+			-L./\
+			-lmemio\
+			-lpthread\
+
+SRCS	:=\
+			$(PWD)/request.cc\
+			$(PWD)/client.cc\
+			$(PWD)/exec.cc\
+			$(PWD)/match.cc\
+			$(PWD)/util.cc\
+			$(PWD)/hashMap.cc\
+			$(PWD)/poll_server.cpp\
+			$(PWD)/multi_conn_server.cpp\
+
+OBJS	:=\
+			$(SRCS:.c=.o) $(SRCS:.cpp=.o)
+			
+poll_server : 	poll_server.o client.o exec.o match.o util.o request.o hashMap.o
+			$(CC) $(INCLUDES) -o poll_server poll_server.o client.o exec.o match.o util.o request.o hashMap.o $(LIBS) 
+
+.c.o	:
+			$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+.cc.o	:
+			$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+.cpp.o	:
+			$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+
+clean	:
+			@$(RM) *.o
+			@$(RM) poll_server multi_conn_server
+			
